@@ -1,0 +1,8 @@
+# RO-2026-008 WP0 environment manifest
+python           3.12.3
+platform         Linux-6.18.5-x86_64-with-glibc2.39
+machine          x86_64
+numpy            2.4.4
+pandas           3.0.2
+sklearn          1.8.0
+scipy            1.17.1

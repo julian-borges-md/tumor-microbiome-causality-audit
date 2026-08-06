@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.venv/
+.env
+tcma/
+data/raw/
+.DS_Store

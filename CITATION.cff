@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+message: "If you use this software or its results, please cite it as below."
+title: "Cross-sectional intratumoral microbial abundance cannot establish causation: a calibration study using an established carcinogen as a natural control"
+abstract: >-
+  A validation study showing that the two significance tests most commonly
+  reported in tumor microbiome analyses both pass on data constructed to
+  contain no biological signal, and that in a decontaminated reference cohort
+  an established carcinogen is depleted rather than enriched at the tumor site.
+  Extends to a two-sample Mendelian randomization screen of 211 gut taxa with
+  independent replication in 100,204 colorectal cancer cases.
+type: software
+authors:
+  - family-names: Borges
+    given-names: Julian
+    orcid: "https://orcid.org/0009-0001-9929-3135"
+    email: jyborges@bu.edu
+    affiliation: "Department of Computer Science, Boston University"
+repository-code: "https://github.com/julian-borges-md/tumor-microbiome-causality-audit"
+license: MIT
+version: 1.0.0
+date-released: "2026-08-06"
+keywords:
+  - tumor microbiome
+  - causal inference
+  - shortcut learning
+  - Mendelian randomization
+  - reproducibility
+  - negative control

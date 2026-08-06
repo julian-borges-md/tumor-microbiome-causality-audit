@@ -1,0 +1,79 @@
+{
+ "config": {
+  "version": "wp0_core-1.0.0",
+  "n_cancers": 6,
+  "n_batches": 3,
+  "n_taxa": 150,
+  "n_per_cancer": 60,
+  "n_signal_taxa": 20,
+  "effect": 1.2,
+  "batch_effect": 1.2,
+  "confound_default": 0.75,
+  "n_trees": 40,
+  "cv_folds": 3,
+  "base_log_mean": 3.0,
+  "base_log_sd": 1.0,
+  "min_class_in_batch": 8,
+  "t1_min_delta": 0.05,
+  "t3_min_margin": 0.1,
+  "t5a_min_delta": 0.05,
+  "fdr_q": 0.05
+ },
+ "cmd": "floor",
+ "seeds": [
+  0,
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9
+ ],
+ "rows": [
+  {
+   "effect": 0.1,
+   "n_seeds": 10,
+   "sensitivity_mean": 0.01,
+   "sensitivity_sd": 0.02,
+   "false_disc_mean": 0.008181818181818182
+  },
+  {
+   "effect": 0.2,
+   "n_seeds": 10,
+   "sensitivity_mean": 0.025,
+   "sensitivity_sd": 0.025000000000000005,
+   "false_disc_mean": 0.007272727272727273
+  },
+  {
+   "effect": 0.4,
+   "n_seeds": 10,
+   "sensitivity_mean": 0.23500000000000001,
+   "sensitivity_sd": 0.10259142264341595,
+   "false_disc_mean": 0.007272727272727273
+  },
+  {
+   "effect": 0.6,
+   "n_seeds": 10,
+   "sensitivity_mean": 0.7,
+   "sensitivity_sd": 0.1378404875209022,
+   "false_disc_mean": 0.012727272727272726
+  },
+  {
+   "effect": 0.8,
+   "n_seeds": 10,
+   "sensitivity_mean": 0.985,
+   "sensitivity_sd": 0.02291287847477922,
+   "false_disc_mean": 0.012727272727272726
+  },
+  {
+   "effect": 1.2,
+   "n_seeds": 10,
+   "sensitivity_mean": 1.0,
+   "sensitivity_sd": 0.0,
+   "false_disc_mean": 0.01090909090909091
+  }
+ ]
+}

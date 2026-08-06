@@ -1,0 +1,165 @@
+{
+  "module": "wp1_cross_consistency-1.0.0",
+  "reconstruction": {
+    "method": "log-CI midpoint; se from CI width / (2 * 1.959964)",
+    "n_taxa": 211,
+    "n_qc_pass": 210,
+    "n_qc_fail": 1,
+    "tolerance_log10p": 0.15
+  },
+  "directional_agreement": {
+    "n_common": 210,
+    "n_agree": 129,
+    "pct": 61.4,
+    "binomial_p": 0.0011307965119772545,
+    "tie_sensitivity": {
+      "n_ties_under_naive_rule": 14,
+      "naive_ties_counted_as_disagreement": {
+        "pct": 57.1,
+        "p": 0.045114087864840696
+      },
+      "naive_ties_dropped": {
+        "pct": 61.2,
+        "p": 0.0020517677411675153
+      }
+    }
+  },
+  "triangulation": {
+    "n_taxa_all_three": 210,
+    "n_consistent_direction": 82,
+    "expected_under_independence": 52.5,
+    "top": [
+      {
+        "taxon": "genus.Alistipes.id.968",
+        "direction": "protective",
+        "or_crc_finngen": 0.957,
+        "p_crc_finngen": 0.5776692181679863,
+        "or_crc_100k": 0.933,
+        "p_crc_100k": 0.047829135136623055,
+        "p_wm_crc_100k": 0.27762286113666335,
+        "or_panc": 0.682,
+        "p_panc": 0.01678351472283685,
+        "p_wm_panc": 0.03467842056646099,
+        "n_nominal": 2
+      },
+      {
+        "taxon": "genus..Eubacteriumbrachygroup.id.11296",
+        "direction": "risk",
+        "or_crc_finngen": 1.035,
+        "p_crc_finngen": 0.4583341193052064,
+        "or_crc_100k": 1.065,
+        "p_crc_100k": 0.002950458960812058,
+        "p_wm_crc_100k": 0.016916579959403936,
+        "or_panc": 1.002,
+        "p_panc": 0.9825701505935156,
+        "p_wm_panc": 0.9344785285029018,
+        "n_nominal": 1
+      },
+      {
+        "taxon": "family.Victivallaceae.id.2255",
+        "direction": "risk",
+        "or_crc_finngen": 1.018,
+        "p_crc_finngen": 0.5881871396674138,
+        "or_crc_100k": 1.053,
+        "p_crc_100k": 0.0035486445638287065,
+        "p_wm_crc_100k": 0.255601475728915,
+        "or_panc": 1.057,
+        "p_panc": 0.40868250579203735,
+        "p_wm_panc": 0.2830885549047176,
+        "n_nominal": 1
+      },
+      {
+        "taxon": "family.Enterobacteriaceae.id.3469",
+        "direction": "risk",
+        "or_crc_finngen": 1.464,
+        "p_crc_finngen": 0.0068360025120357,
+        "or_crc_100k": 1.007,
+        "p_crc_100k": 0.868402615087305,
+        "p_wm_crc_100k": 0.9756312564832,
+        "or_panc": 1.188,
+        "p_panc": 0.3522349887229963,
+        "p_wm_panc": 0.1476837631116031,
+        "n_nominal": 1
+      },
+      {
+        "taxon": "order.Enterobacteriales.id.3468",
+        "direction": "risk",
+        "or_crc_finngen": 1.464,
+        "p_crc_finngen": 0.0068360025120357,
+        "or_crc_100k": 1.007,
+        "p_crc_100k": 0.868402615087305,
+        "p_wm_crc_100k": 0.9750079816805504,
+        "or_panc": 1.188,
+        "p_panc": 0.3522349887229963,
+        "p_wm_panc": 0.11910901018154169,
+        "n_nominal": 1
+      },
+      {
+        "taxon": "family.Bifidobacteriaceae.id.433",
+        "direction": "risk",
+        "or_crc_finngen": 1.296,
+        "p_crc_finngen": 0.00869229958451,
+        "or_crc_100k": 1.043,
+        "p_crc_100k": 0.3929791550159255,
+        "p_wm_crc_100k": 0.520714298119656,
+        "or_panc": 1.009,
+        "p_panc": 0.951514524336059,
+        "p_wm_panc": 0.43335597113167756,
+        "n_nominal": 1
+      },
+      {
+        "taxon": "order.Bifidobacteriales.id.432",
+        "direction": "risk",
+        "or_crc_finngen": 1.296,
+        "p_crc_finngen": 0.00869229958451,
+        "or_crc_100k": 1.043,
+        "p_crc_100k": 0.3929791550159255,
+        "p_wm_crc_100k": 0.5366777113990138,
+        "or_panc": 1.009,
+        "p_panc": 0.951514524336059,
+        "p_wm_panc": 0.44272707498113173,
+        "n_nominal": 1
+      },
+      {
+        "taxon": "genus.FamilyXIIIAD3011group.id.11293",
+        "direction": "protective",
+        "or_crc_finngen": 0.821,
+        "p_crc_finngen": 0.0093476198001255,
+        "or_crc_100k": 0.949,
+        "p_crc_100k": 0.33997862422306235,
+        "p_wm_crc_100k": 0.9365128888078738,
+        "or_panc": 0.937,
+        "p_panc": 0.6096741962882191,
+        "p_wm_panc": 0.8909954897249538,
+        "n_nominal": 1
+      },
+      {
+        "taxon": "genus.FamilyXIIIUCG001.id.11294",
+        "direction": "risk",
+        "or_crc_finngen": 1.004,
+        "p_crc_finngen": 0.952456508570006,
+        "or_crc_100k": 1.108,
+        "p_crc_100k": 0.014484550537916857,
+        "p_wm_crc_100k": 0.3239233061299678,
+        "or_panc": 1.028,
+        "p_panc": 0.8807069615440595,
+        "p_wm_panc": 0.3668157893466555,
+        "n_nominal": 1
+      },
+      {
+        "taxon": "genus.Butyricicoccus.id.2055",
+        "direction": "risk",
+        "or_crc_finngen": 1.071,
+        "p_crc_finngen": 0.5669520340430234,
+        "or_crc_100k": 1.017,
+        "p_crc_100k": 0.8103648210012504,
+        "p_wm_crc_100k": 0.9656282512246899,
+        "or_panc": 1.453,
+        "p_panc": 0.016552280044652617,
+        "p_wm_panc": 0.19464996643190935,
+        "n_nominal": 1
+      }
+    ]
+  },
+  "drift": []
+}

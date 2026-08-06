@@ -1,0 +1,289 @@
+#!/usr/bin/env python3
+"""
+RO-2026-008 | Poster mock builder v1.0
+Composites the real Figures 1-7 into a 48 x 36 inch landscape poster.
+
+Outputs POSTER_RO-2026-008_44x44.png (100 dpi preview) and POSTER_RO-2026-008_44x44.pdf.
+Layout parameters mirror POSTER_SPEC.md v1.0. Figure widths respect the
+170 ppi floor documented there.
+
+    python3 poster_mock.py
+"""
+import textwrap
+import matplotlib
+matplotlib.use("Agg")
+matplotlib.rcParams["pdf.fonttype"] = 42
+matplotlib.rcParams["ps.fonttype"] = 42
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+from matplotlib.patches import FancyBboxPatch, Rectangle
+
+W, H = 44.0, 44.0
+MARGIN = 1.5
+GUTTER = 1.0
+NCOL = 3
+COLW = (W - 2 * MARGIN - (NCOL - 1) * GUTTER) / NCOL   # 14.33
+COLX = [MARGIN + i * (COLW + GUTTER) for i in range(NCOL)]
+
+INK = "#1A1A1A"
+MUTED = "#4A4A4A"
+ACCENT = "#CC0000"          # BU scarlet
+PANEL_BG = "#F4F2EF"
+RULE = "#D8D4CE"
+
+TITLE_PT = 76
+SUB_PT = 34
+HEAD_PT = 48
+BODY_PT = 31
+NUM_PT = 42
+CAP_PT = 23
+FOOT_PT = 21
+
+fig = plt.figure(figsize=(W, H), dpi=100)
+fig.patch.set_facecolor("white")
+
+
+def inches(x, y):
+    """Convert inches (origin bottom-left) to figure fraction."""
+    return x / W, y / H
+
+
+def text(x, y, s, pt, color=INK, weight="normal", va="top", ha="left",
+         wrap_chars=None, leading=1.30, style="normal"):
+    """Draw wrapped text at (x, y) in inches. Returns height consumed."""
+    lines = []
+    if wrap_chars:
+        for para in s.split("\n"):
+            lines.extend(textwrap.wrap(para, wrap_chars) or [""])
+    else:
+        lines = s.split("\n")
+    line_h = pt * leading / 72.0
+    for i, ln in enumerate(lines):
+        fx, fy = inches(x, y - i * line_h)
+        fig.text(fx, fy, ln, fontsize=pt, color=color, weight=weight,
+                 va=va, ha=ha, style=style, family="DejaVu Sans")
+    return len(lines) * line_h
+
+
+def rule(x, y, w, lw=2.5, color=RULE):
+    fx, fy = inches(x, y)
+    fig.add_artist(Rectangle((fx, fy), w / W, lw / 72.0 / H,
+                             facecolor=color, edgecolor="none",
+                             transform=fig.transFigure))
+
+
+def panel_bg(x, y_top, w, h, color=PANEL_BG):
+    fx, fy = inches(x - 0.35, y_top - h)
+    fig.add_artist(FancyBboxPatch((fx, fy), (w + 0.7) / W, h / H,
+                                  boxstyle="round,pad=0,rounding_size=0.004",
+                                  facecolor=color, edgecolor="none",
+                                  transform=fig.transFigure, zorder=0))
+
+
+def image(path, x, y_top, width):
+    """Place an image with its top-left at (x, y_top). Returns height."""
+    im = mpimg.imread(path)
+    h = width * im.shape[0] / im.shape[1]
+    fx, fy = inches(x, y_top - h)
+    ax = fig.add_axes([fx, fy, width / W, h / H])
+    ax.imshow(im)
+    ax.axis("off")
+    return h
+
+
+def headline(x, y, n, s, w):
+    """Numbered panel headline with accent bar. Returns height consumed."""
+    fx, fy = inches(x - 0.35, y - 0.62)
+    fig.add_artist(Rectangle((fx, fy), 0.16 / W, 0.62 / H,
+                             facecolor=ACCENT, edgecolor="none",
+                             transform=fig.transFigure))
+    text(x, y, f"{n}   {s}", HEAD_PT, weight="bold", wrap_chars=30)
+    n_lines = len(textwrap.wrap(f"{n}   {s}", 30))
+    return n_lines * HEAD_PT * 1.22 / 72.0 + 0.22
+
+
+# ----------------------------------------------------------------- header
+text(MARGIN, H - MARGIN,
+     "Cross-sectional intratumoral microbial abundance cannot establish causation",
+     TITLE_PT, weight="bold", wrap_chars=64)
+text(MARGIN, H - MARGIN - 3.05,
+     "A calibration study using an established carcinogen as a natural control",
+     44, color=MUTED, wrap_chars=88, style="italic")
+text(MARGIN, H - MARGIN - 4.35,
+     "Julian Borges, MD, MS   |   Department of Computer Science, Boston University",
+     SUB_PT, weight="bold")
+text(MARGIN, H - MARGIN - 5.00,
+     "ORCID 0009-0001-9929-3135   |   jyborges@bu.edu",
+     28, color=MUTED)
+rule(MARGIN, H - MARGIN - 5.70, W - 2 * MARGIN, lw=5, color=ACCENT)
+
+TOP = H - MARGIN - 6.45
+BOTTOM = MARGIN + 2.4
+
+# --------------------------------------------------------------- column 1
+y = TOP
+y -= headline(COLX[0], y, "1", "The question the retraction did not answer", COLW)
+y -= text(COLX[0], y,
+          "The 2024 retraction of a pan-cancer tumor microbiome analysis "
+          "established that reported signal can be human read misclassification "
+          "and batch effect. The field responded with decontamination pipelines "
+          "and curated resources. Those address one question: is a detected "
+          "taxon really present. They do not address a second: if it is present, "
+          "is it causal, and in which direction does the association run. The "
+          "dominant design, cross-sectional tumor versus adjacent normal, detects "
+          "a difference in abundance well and interprets it poorly, because it "
+          "fixes neither the cause nor the temporal order.",
+          BODY_PT, wrap_chars=55) + 0.50
+
+y -= headline(COLX[0], y, "2", "Standard tests pass on data with no biology", COLW)
+text(COLX[0], y, "10 of 10", NUM_PT, weight="bold", color=ACCENT)
+text(COLX[0] + 3.9, y,
+     "seeds in which a cohort built to contain no\nbiological signal passed both standard tests",
+     27, color=MUTED)
+y -= 1.55
+y -= text(COLX[0], y,
+          "Comparison against a no-information rate and label permutation both "
+          "passed on zero-signal data. Only a confounder baseline and "
+          "within-batch cross-validation discriminated. Batch-outcome "
+          "confounding alone manufactured accuracy 2.5 times chance from data "
+          "with no biology.",
+          BODY_PT, wrap_chars=55) + 0.25
+y -= image("Figure1_audit_validation_crop.png", COLX[0] + 0.65, y, 11.7) + 0.14
+y -= text(COLX[0], y,
+          "Fig 1  Pass rate by test across ten seeds. T1 and T2 pass in both "
+          "cohorts; only T3 and T5a separate them.",
+          CAP_PT, color=MUTED, wrap_chars=74) + 0.30
+y -= image("Figure2_confounding_sweep_crop.png", COLX[0] + 0.65, y, 11.7) + 0.14
+y -= text(COLX[0], y,
+          "Fig 2  Accuracy against confounding strength. Within-batch delta stays "
+          "near zero for zero-signal data at every level.",
+          CAP_PT, color=MUTED, wrap_chars=74)
+
+# --------------------------------------------------------------- column 2
+y = TOP
+y -= headline(COLX[1], y, "3", "An established carcinogen runs backwards", COLW)
+text(COLX[1], y, "8x", NUM_PT, weight="bold", color=ACCENT)
+text(COLX[1] + 2.0, y,
+     "depletion of H. pylori at the gastric tumor site\n"
+     "39 matched pairs, diff -0.99 log units, p 4.5e-4",
+     27, color=MUTED)
+y -= 1.55
+y -= text(COLX[1], y,
+          "Helicobacter pylori is an IARC Group 1 carcinogen and the accepted "
+          "cause of gastric adenocarcinoma. In a decontaminated reference cohort "
+          "it is depleted, not enriched, at the tumor site. The mechanism is "
+          "general: gastric carcinogenesis proceeds through atrophy and "
+          "intestinal metaplasia, which eliminate the acid-adapted mucosa the "
+          "organism requires. It causes the disease and is then displaced by it. "
+          "For the one organism whose causal role is known, cross-sectional "
+          "abundance gives the wrong direction.",
+          BODY_PT, wrap_chars=55) + 0.25
+y -= image("Figure4_real_data_crop.png", COLX[1] + 0.55, y, 11.9) + 0.14
+y -= text(COLX[1], y,
+          "Fig 4  (a) Within-tissue tumor versus adjacent-normal discrimination, "
+          "weak in all four evaluable cancers. (b) Paired H. pylori depletion.",
+          CAP_PT, color=MUTED, wrap_chars=74) + 0.50
+
+y -= headline(COLX[1], y, "4", "Two ways clean data still misleads", COLW)
+h1 = image("Figure3_detection_floor_crop.png", COLX[1] + 0.05, y, 6.2)
+h2 = image("Figure5_nesting_crop.png", COLX[1] + 6.8, y, 6.2)
+y -= max(h1, h2) + 0.14
+text(COLX[1] + 0.1, y,
+     "Fig 3  Detection floor is about 0.8 log units. A null must be reported as "
+     "no signal above the floor.",
+     CAP_PT, color=MUTED, wrap_chars=34)
+text(COLX[1] + 7.35, y,
+     "Fig 5  Discovery counts vary up to 5.7-fold with the taxonomic redundancy "
+     "rule, on identical data.",
+     CAP_PT, color=MUTED, wrap_chars=34)
+y -= 1.55
+
+m_h = 6.4
+panel_bg(COLX[1], y, COLW, m_h, color="#F1F1F1")
+y -= 0.48
+text(COLX[1], y, "DATA AND METHODS", 27, weight="bold", color=MUTED)
+y -= 0.92
+text(COLX[1], y,
+     "Simulation  Two synthetic cohorts, six cancer types, three batches, 150 "
+     "taxa, 60 samples per type. One carries genuine signal, one carries none. "
+     "Batch confounded with outcome at 0.75.\n"
+     "Audit  T1 no-information rate, T2 label permutation, T3 confounder "
+     "baseline, T5a within-batch cross-validation. Random forests.\n"
+     "Real data  The Cancer Microbiome Atlas: 611 samples, 14,492 taxa, five "
+     "TCGA projects, three centers.\n"
+     "MR  MiBioGen, 211 taxa, 18,340 individuals. IVW primary, plus MR-Egger, "
+     "weighted median, Cochran Q, BH-FDR.",
+     27, wrap_chars=62)
+
+
+# --------------------------------------------------------------- column 3
+y = TOP
+y -= headline(COLX[2], y, "5", "Germline anchoring: the causal screen", COLW)
+text(COLX[2], y, "100,204", NUM_PT, weight="bold", color=ACCENT)
+text(COLX[2] + 4.9, y,
+     "case independent replication cohort\n211 gut taxa, two-sample MR",
+     27, color=MUTED)
+y -= 1.55
+y -= text(COLX[2], y,
+          "Every FinnGen lead failed replication. The one FDR-significant hit, "
+          "phylum Cyanobacteria, was diagnosed as pleiotropy via the NOS2 "
+          "instrument rs2314810 and flipped direction on replication. A "
+          "Bifidobacterium signal collapsed on removal of rs182549 at LCT. "
+          "Zero taxa survive FDR in the large cohort.",
+          BODY_PT, wrap_chars=55) + 0.25
+y -= image("Figure6_MR_colorectal_crop.png", COLX[2], y, 13.0) + 0.14
+y -= text(COLX[2], y,
+          "Fig 6  Two-sample MR of 211 gut taxa against colorectal cancer, "
+          "FinnGen R12.",
+          CAP_PT, color=MUTED, wrap_chars=74) + 0.50
+
+y -= headline(COLX[2], y, "6", "The signal is real but diffuse", COLW)
+y -= image("Figure7_cross_cohort.png", COLX[2], y, 13.0) + 0.14
+y -= text(COLX[2], y,
+          "Fig 7  Cross-cohort concordance, 210 taxa, sign recovered. Agreement "
+          "61.4 percent (129/210, binomial p 0.0011) against 50 percent under "
+          "noise, robust to the tie rule.",
+          CAP_PT, color=MUTED, wrap_chars=74) + 0.20
+y -= text(COLX[2], y,
+          "Alistipes points protective in three of three tests, nominal in two of "
+          "three. Colorectal FinnGen is null at p 0.578. No test survives FDR. A "
+          "lead requiring species-level instrumentation, not a finding.",
+          BODY_PT, wrap_chars=55) + 0.40
+
+box_h = 3.15
+panel_bg(COLX[2], y, COLW, box_h, color="#EFE7E7")
+y -= 0.40
+text(COLX[2], y, "CONCLUSION", 25, weight="bold", color=ACCENT)
+y -= 0.78
+text(COLX[2], y,
+     "Decontamination is necessary and not sufficient. Cross-sectional abundance "
+     "cannot establish causation and, on the one organism whose causal role is "
+     "known, gets the direction backwards. Causal inference here requires "
+     "germline anchoring or temporal ordering, and both require an audit first.",
+     BODY_PT, wrap_chars=55)
+
+# ----------------------------------------------------------------- footer
+rule(MARGIN, MARGIN + 1.62, W - 2 * MARGIN, lw=2.5)
+text(MARGIN, MARGIN + 1.42,
+     "Methods  Two synthetic cohorts, six cancer types, three batches, 150 taxa, "
+     "60 samples per type; one with genuine signal, one without, batch "
+     "confounded with outcome at 0.75. Audit: T1 no-information rate, T2 label "
+     "permutation, T3 confounder baseline, T5a within-batch CV.",
+     FOOT_PT, color=MUTED)
+text(MARGIN, MARGIN + 0.94,
+     "Data  The Cancer Microbiome Atlas, DOI 10.7924/r4bk1j35s, 611 samples, "
+     "14,492 taxa  |  MiBioGen, 211 taxa  |  FinnGen R12  |  "
+     "Fernandez-Rozadilla 2023, GCST90129505",
+     FOOT_PT, color=MUTED)
+text(MARGIN, MARGIN + 0.46,
+     "Code  Versioned pipeline, ten-seed determinism, input checksums, "
+     "assertion-checked outputs. Repository at submission, Zenodo at acceptance.",
+     FOOT_PT, color=MUTED)
+text(W - MARGIN, MARGIN + 0.94, "BU Health Data Science & AI Showcase   |   "
+     "15 September 2026", FOOT_PT, color=MUTED, ha="right")
+text(W - MARGIN, MARGIN + 0.46, "v1.0  |  44 x 44 in  |  RO-2026-008",
+     FOOT_PT, color=ACCENT, ha="right")
+
+fig.savefig("POSTER_RO-2026-008_44x44_preview.png", dpi=72, facecolor="white")
+fig.savefig("POSTER_RO-2026-008_44x44.pdf", facecolor="white")
+print("wrote POSTER_RO-2026-008_44x44.png and .pdf")
