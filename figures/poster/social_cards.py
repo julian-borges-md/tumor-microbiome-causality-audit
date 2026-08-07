@@ -22,6 +22,88 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 from matplotlib.patches import Rectangle
 
+# --- asset resolution -------------------------------------------------------
+# Figures live in ../ ; the de-titled crops and the QR are derived here on
+# demand into _derived/ (gitignored) so `make poster` works from a clean clone.
+import os as _os, subprocess as _sp
+_HERE = _os.path.dirname(_os.path.abspath(__file__))
+_FIGS = _os.path.normpath(_os.path.join(_HERE, ".."))
+_DER = _os.path.join(_HERE, "_derived")
+_os.makedirs(_DER, exist_ok=True)
+
+REPO_URL = "https://github.com/julian-borges-md/tumor-microbiome-causality-audit"
+
+
+def _crop_title(name):
+    """Remove the figure's internal title band. Returns path to the crop."""
+    import numpy as _np
+    from PIL import Image as _Im
+    dst = _os.path.join(_DER, name.replace(".png", "_crop.png"))
+    if _os.path.exists(dst):
+        return dst
+    im = _Im.open(_os.path.join(_FIGS, name))
+    a = _np.array(im.convert("L"))
+    ink = (a < 240).sum(axis=1)
+    end = None
+    for i, v in enumerate(ink):
+        if v > 0:
+            j = i
+            while j < len(ink) and ink[j] > 0:
+                j += 1
+            end = j
+            break
+    im.crop((0, end + 22, im.size[0], im.size[1])).save(dst)
+    return dst
+
+
+def _hero_panel_b():
+    """Split cropped Figure 4 at its widest internal whitespace, keep panel b."""
+    import numpy as _np
+    from PIL import Image as _Im
+    dst = _os.path.join(_DER, "Fig4b_hpylori.png")
+    if _os.path.exists(dst):
+        return dst
+    im = _Im.open(_crop_title("Figure4_real_data.png"))
+    a = _np.array(im.convert("L"))
+    ink = (a < 240).sum(axis=0)
+    W = len(ink)
+    lo, hi = int(W * 0.35), int(W * 0.65)
+    bands, s = [], None
+    for i in range(lo, hi):
+        if ink[i] == 0 and s is None:
+            s = i
+        if ink[i] > 0 and s is not None:
+            bands.append((s, i, i - s))
+            s = None
+    bands.sort(key=lambda b: -b[2])
+    split = (bands[0][0] + bands[0][1]) // 2
+    im.crop((split, 0, W, im.size[1])).save(dst)
+    return dst
+
+
+def _qr(url=REPO_URL):
+    dst = _os.path.join(_DER, "repo_qr.png")
+    if not _os.path.exists(dst):
+        import qrcode
+        q = qrcode.QRCode(box_size=20, border=1,
+                          error_correction=qrcode.constants.ERROR_CORRECT_M)
+        q.add_data(url)
+        q.make(fit=True)
+        q.make_image(fill_color="#12100E", back_color="white").save(dst)
+    return dst
+
+
+def _asset(name):
+    """Resolve a figure name to a path, deriving crops when asked for."""
+    if name.endswith("_crop.png"):
+        return _crop_title(name.replace("_crop.png", ".png"))
+    if name == "Fig4b_hpylori.png":
+        return _hero_panel_b()
+    if name == "repo_qr.png":
+        return _qr()
+    return _os.path.join(_FIGS, name)
+# ---------------------------------------------------------------------------
+
 INK = "#12100E"
 MUTED = "#5A544D"
 ACCENT = "#CC0000"
@@ -65,7 +147,7 @@ def build(path, px_w, px_h, dpi=150, show_claim=True, title_pt=34):
                                  transform=fig.transFigure))
 
     def hero(cx, y_top, avail_h, max_w):
-        im = mpimg.imread(HERO)
+        im = mpimg.imread(_asset(HERO))
         aspect = im.shape[1] / im.shape[0]
         h = avail_h
         w = h * aspect

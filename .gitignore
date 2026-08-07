@@ -5,3 +5,4 @@ __pycache__/
 tcma/
 data/raw/
 .DS_Store
+figures/poster/_derived/

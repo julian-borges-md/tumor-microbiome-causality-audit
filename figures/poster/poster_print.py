@@ -18,6 +18,88 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 from matplotlib.patches import FancyBboxPatch, Rectangle
 
+# --- asset resolution -------------------------------------------------------
+# Figures live in ../ ; the de-titled crops and the QR are derived here on
+# demand into _derived/ (gitignored) so `make poster` works from a clean clone.
+import os as _os, subprocess as _sp
+_HERE = _os.path.dirname(_os.path.abspath(__file__))
+_FIGS = _os.path.normpath(_os.path.join(_HERE, ".."))
+_DER = _os.path.join(_HERE, "_derived")
+_os.makedirs(_DER, exist_ok=True)
+
+REPO_URL = "https://github.com/julian-borges-md/tumor-microbiome-causality-audit"
+
+
+def _crop_title(name):
+    """Remove the figure's internal title band. Returns path to the crop."""
+    import numpy as _np
+    from PIL import Image as _Im
+    dst = _os.path.join(_DER, name.replace(".png", "_crop.png"))
+    if _os.path.exists(dst):
+        return dst
+    im = _Im.open(_os.path.join(_FIGS, name))
+    a = _np.array(im.convert("L"))
+    ink = (a < 240).sum(axis=1)
+    end = None
+    for i, v in enumerate(ink):
+        if v > 0:
+            j = i
+            while j < len(ink) and ink[j] > 0:
+                j += 1
+            end = j
+            break
+    im.crop((0, end + 22, im.size[0], im.size[1])).save(dst)
+    return dst
+
+
+def _hero_panel_b():
+    """Split cropped Figure 4 at its widest internal whitespace, keep panel b."""
+    import numpy as _np
+    from PIL import Image as _Im
+    dst = _os.path.join(_DER, "Fig4b_hpylori.png")
+    if _os.path.exists(dst):
+        return dst
+    im = _Im.open(_crop_title("Figure4_real_data.png"))
+    a = _np.array(im.convert("L"))
+    ink = (a < 240).sum(axis=0)
+    W = len(ink)
+    lo, hi = int(W * 0.35), int(W * 0.65)
+    bands, s = [], None
+    for i in range(lo, hi):
+        if ink[i] == 0 and s is None:
+            s = i
+        if ink[i] > 0 and s is not None:
+            bands.append((s, i, i - s))
+            s = None
+    bands.sort(key=lambda b: -b[2])
+    split = (bands[0][0] + bands[0][1]) // 2
+    im.crop((split, 0, W, im.size[1])).save(dst)
+    return dst
+
+
+def _qr(url=REPO_URL):
+    dst = _os.path.join(_DER, "repo_qr.png")
+    if not _os.path.exists(dst):
+        import qrcode
+        q = qrcode.QRCode(box_size=20, border=1,
+                          error_correction=qrcode.constants.ERROR_CORRECT_M)
+        q.add_data(url)
+        q.make(fit=True)
+        q.make_image(fill_color="#12100E", back_color="white").save(dst)
+    return dst
+
+
+def _asset(name):
+    """Resolve a figure name to a path, deriving crops when asked for."""
+    if name.endswith("_crop.png"):
+        return _crop_title(name.replace("_crop.png", ".png"))
+    if name == "Fig4b_hpylori.png":
+        return _hero_panel_b()
+    if name == "repo_qr.png":
+        return _qr()
+    return _os.path.join(_FIGS, name)
+# ---------------------------------------------------------------------------
+
 W, H = 44.0, 44.0
 MARGIN = 1.5
 GUTTER = 1.0
@@ -82,7 +164,7 @@ def panel_bg(x, y_top, w, h, color=PANEL_BG):
 
 def image(path, x, y_top, width):
     """Place an image with its top-left at (x, y_top). Returns height."""
-    im = mpimg.imread(path)
+    im = mpimg.imread(_asset(path))
     h = width * im.shape[0] / im.shape[1]
     fx, fy = inches(x, y_top - h)
     ax = fig.add_axes([fx, fy, width / W, h / H])
@@ -266,9 +348,9 @@ text(COLX[2], y,
 rule(MARGIN, MARGIN + 1.62, W - 2 * MARGIN, lw=2.5)
 text(MARGIN, MARGIN + 1.42,
      "Methods  Two synthetic cohorts, six cancer types, three batches, 150 taxa, "
-     "60 samples per type; one with genuine signal, one without, batch "
-     "confounded with outcome at 0.75. Audit: T1 no-information rate, T2 label "
-     "permutation, T3 confounder baseline, T5a within-batch CV.",
+     "60 samples per type; one with genuine signal, one without, batch confounded "
+     "with outcome at 0.75. Audit: T1 no-information rate, T2 label permutation, "
+     "T3 confounder baseline, T5a within-batch CV.",
      FOOT_PT, color=MUTED)
 text(MARGIN, MARGIN + 0.94,
      "Data  The Cancer Microbiome Atlas, DOI 10.7924/r4bk1j35s, 611 samples, "
@@ -277,12 +359,25 @@ text(MARGIN, MARGIN + 0.94,
      FOOT_PT, color=MUTED)
 text(MARGIN, MARGIN + 0.46,
      "Code  Versioned pipeline, ten-seed determinism, input checksums, "
-     "assertion-checked outputs. Repository at submission, Zenodo at acceptance.",
+     "assertion-checked outputs, re-derived by CI on every push.  " + 
+     "github.com/julian-borges-md/tumor-microbiome-causality-audit",
      FOOT_PT, color=MUTED)
-text(W - MARGIN, MARGIN + 0.94, "BU Health Data Science & AI Showcase   |   "
+text(W - MARGIN - 2.55, MARGIN + 0.94, "BU Health Data Science & AI Showcase   |   "
      "15 September 2026", FOOT_PT, color=MUTED, ha="right")
-text(W - MARGIN, MARGIN + 0.46, "v1.0  |  44 x 44 in  |  RO-2026-008",
+text(W - MARGIN - 2.55, MARGIN + 0.46, "v1.0  |  44 x 44 in  |  RO-2026-008",
      FOOT_PT, color=ACCENT, ha="right")
+
+
+# QR_BLOCK_V1
+_qr_size = 1.45
+_qr_x = COLX[2] + COLW - _qr_size
+_qr_y = MARGIN + 1.95
+_qax = fig.add_axes([_qr_x / W, _qr_y / H, _qr_size / W, _qr_size / H])
+_qax.imshow(mpimg.imread(_asset("repo_qr.png")))
+_qax.axis("off")
+text(COLX[2], _qr_y + _qr_size - 0.10,
+     "Scan for the repository:\ncode, results, figures,\nand the corrections log.", 26,
+     color=MUTED, leading=1.24)
 
 fig.savefig("POSTER_RO-2026-008_44x44_preview.png", dpi=72, facecolor="white")
 fig.savefig("POSTER_RO-2026-008_44x44.pdf", facecolor="white")
