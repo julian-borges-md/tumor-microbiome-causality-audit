@@ -107,3 +107,16 @@ seven figures regenerate from source.
 Gap 1 ("nest_sweep.py not canonicalised") is CLOSED. wp0_nesting_sweep.py
 replaces the exec() import hack, emits results/nesting_sweep.json, and fails
 on drift. nest_sweep.py is retained only as the historical exploratory script.
+
+
+---
+
+# Appended 2026-08-07 | MR pipeline
+
+| Claim | Command | Expected |
+|---|---|---|
+| Exposure instrument selection reproduces committed counts as a superset | `python3 src/wp1_mr_pipeline.py validate-instruments --exposure MBG.allHits.p1e4.txt` | 0 deficits over 211 taxa, median ratio 1.11, exit 0 |
+| Recovered parameters | same | p<1e-5, 500kb window, palindromic dropped |
+
+Stage 2 (outcome harmonisation and estimators) is committed but unvalidated.
+See CORRECTIONS.md C12.

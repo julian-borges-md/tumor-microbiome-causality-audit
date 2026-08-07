@@ -115,6 +115,7 @@ src/                       analysis modules
   wp0_paired.py            patient-matched tumor versus adjacent-normal analysis
   wp0_nesting.py           taxonomic redundancy sweep
   wp1_cross_consistency.py cross-cohort consistency, assertion-checked
+  wp1_mr_pipeline.py       MR method; exposure stage validated, outcome stage not
 results/                   committed result tables and JSON
 figures/                   Figures 1-7, 300 dpi
 figures/poster/            print poster, social cards, and their generators
@@ -140,7 +141,7 @@ This repository documents its own defects rather than omitting them.
 | ID | Limitation |
 |---|---|
 | L1 | **Closed.** All seven figures regenerate from source. Figures 1, 2, 3, 6 via `figures/make_figures.py`; Figures 4, 5 via `figures/make_figures_real.py`; Figure 7 via `src/wp1_cross_consistency.py`. Every module is assertion-checked and exits non-zero on drift |
-| L2 | The Mendelian randomization pipeline is not committed. Result tables and plots only. Scheduled, not done |
+| L2 | **Partially closed.** `src/wp1_mr_pipeline.py` commits the full method. Instrument selection is validated against all 211 committed counts (0 deficits, median ratio 1.11) and runs with no credentials. Outcome harmonisation and the estimators are implemented but **not yet validated end to end**, pending outcome summary statistics. See [C12](docs/CORRECTIONS.md) |
 | L3 | The FinnGen colorectal arm is **reconstructed** from rounded confidence intervals, validated against stored p-values, not re-derived from source. Definitive fix requires re-running with full-precision output |
 | L4 | Permutation count is 25, not 1000, chosen for runtime |
 | L5 | Classifier variance is not sampled (`random_state` fixed), so reported dispersion understates total uncertainty |
