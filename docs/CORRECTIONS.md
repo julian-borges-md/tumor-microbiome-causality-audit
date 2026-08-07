@@ -198,8 +198,10 @@ Publicly downloadable, no credentials.
 PARTIALLY closed. src/wp1_mr_pipeline.py commits the full method: instrument
 selection, harmonisation, IVW, MR-Egger, weighted median, Cochran Q and
 BH-FDR. Stage 1 (exposure) is validated against all 211 committed instrument
-counts and runs today with no credentials. Stage 2 (outcome) is implemented
-but NOT validated end to end, because the outcome summary statistics require
+counts and runs today with no credentials. Stage 2 (outcome) was NOT
+implemented in this module, contrary to what this paragraph originally said;
+see the C13 amendment. It is implemented in src/wp1_stage2_validate.py and was
+validated on 2026-08-08, because the outcome summary statistics require
 an OpenGWAS JWT (api.opengwas.io now returns 401 unauthenticated) or a direct
 FinnGen / GWAS Catalog download that has not been performed. Stage 2 output
 must not be used for any claim until that check is run. The module refuses to
@@ -348,3 +350,62 @@ Stage 1 remains validated. Stage 2 is now EXECUTED against real outcome data
 for all three outcomes, and the result is that the committed pipeline does not
 reproduce the committed tables. Per RLO Section 8.7 this is a PASS. L2 is
 closed as an evidence gap and reopened as a defect list, C13 through C20.
+
+
+---
+
+# Appended 2026-08-08 | Post-RLO reconciliation
+
+## C13 amendment. The false claim, and the flag audit
+
+C13 recorded that `wp1_mr_pipeline.py run` is a stub. Two things must be added.
+
+**The repository asserted something untrue.** README L2 and CORRECTIONS C12
+both stated that "outcome harmonisation and the estimators are implemented but
+not yet validated end to end". The estimators are implemented. Harmonisation
+is not implemented at all: the `run` branch prints a notice and returns 2, with
+no outcome loading, no harmonisation, no taxon loop and no writer. The claim
+was written without any check that could have falsified it, in a repository
+whose central finding is that a check which cannot fail is not a check. Both
+statements are corrected as of this entry.
+
+**The flag audit.** C16, the missing MR-Egger exposure orientation, is the most
+consequential discrepancy for interpretation, so its effect on published output
+was tested directly rather than assumed. Figure 6 assigns each taxon to FDR /
+pleio / het / clean using `fdr_ivw`, `egger_intercept_p` and `q_p`.
+
+| Check | Result |
+|---|---|
+| Figure 6 flags changed, committed vs faithful reconstruction | **0 / 211** |
+| Taxa surviving FDR | `phylum.Cyanobacteria.id.1500` in both |
+| Agreement on the FinnGen colorectal table | 15 significant figures |
+
+C14 through C19 are therefore **code-level defects in
+`wp1_mr_pipeline.py`, not errors in the published results**. The published
+FinnGen colorectal table was evidently produced by the same code path as the
+faithful reconstruction. No figure, manuscript claim or poster panel moves.
+
+## C20. Reconstruction tables were named too close to the published record
+
+`results/MR_rebuilt_*.tsv` sat beside `results/MR_results_*.tsv` with
+near-identical names and entirely different provenance: one is the published
+record, the other a reconstruction. That is the ambiguity that produced C5.
+Every `MR_rebuilt_*` file now carries a first-line banner marking it a
+reconstruction and pointing to the published tables.
+
+Underscore-prefixed artefacts, which read as scratch while being cited as
+evidence in the validation report, were renamed:
+
+| Old | New |
+|---|---|
+| `docs/findings/_pertaxon_*.tsv` | `docs/findings/MR_pertaxon_comparison_*.tsv` |
+| `src/_stage2_compare.py` | `src/wp1_stage2_compare.py` |
+| `src/_stage2_diagnose.py` | `src/wp1_stage2_diagnose.py` |
+
+## C21. The Stage 2 stub is removed rather than left returning exit 2
+
+A subcommand that exists, is documented, and cannot run is worse than an absent
+one: it is what allowed the false "implemented" claim to survive. The `run`
+subcommand is deleted from `wp1_mr_pipeline.py`. `src/wp1_stage2_validate.py`
+is the canonical Stage 2 implementation, and the module docstring now says so
+and points at it.

@@ -131,9 +131,9 @@ Per taxon comparison tables, one row per taxon for all 211 taxa, are written to:
 
 | Outcome | Path |
 |---|---|
-| colorectal | `docs/findings/_pertaxon_colorectal.tsv` |
-| colorectal_100k | `docs/findings/_pertaxon_colorectal_100k.tsv` |
-| pancreatic | `docs/findings/_pertaxon_pancreatic.tsv` |
+| colorectal | `docs/findings/MR_pertaxon_comparison_colorectal.tsv` |
+| colorectal_100k | `docs/findings/MR_pertaxon_comparison_colorectal_100k.tsv` |
+| pancreatic | `docs/findings/MR_pertaxon_comparison_pancreatic.tsv` |
 
 Each carries `committed_n`, `A_n`, `B_n`, `committed_p`, `A_p`, `B_p`,
 `committed_b`, `B_b`, `committed_se`, `B_se`, `committed_p_egger`, `A_p_egger`,
@@ -251,7 +251,7 @@ and, where it existed, it disagreed with the artefact it claimed to document.
 | Rebuilt table, pancreatic, committed pipeline parameters | `results/MR_rebuilt_pancreatic_committedparams.tsv` |
 | Per taxon comparisons | `docs/findings/_pertaxon_{colorectal,colorectal_100k,pancreatic}.tsv` |
 | Stage 2 harness | `src/wp1_stage2_validate.py` |
-| Comparison and diagnosis | `src/_stage2_compare.py`, `src/_stage2_diagnose.py` |
+| Comparison and diagnosis | `src/wp1_stage2_compare.py`, `src/wp1_stage2_diagnose.py` |
 | Outcome downloads | `outcome/` (gitignored, not committed) |
 
 Both variants are emitted so the artefact under test and the reconstruction that

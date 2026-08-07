@@ -8,20 +8,29 @@ tables and plots: instrument selection, harmonisation and every estimator were
 run interactively and never committed. That is the same defect class that
 produced the Alistipes error (CORRECTIONS C5), one level up.
 
-Two stages:
+Scope of THIS module: Stage 1 only.
 
-  STAGE 1  EXPOSURE, validated now.
-           Instrument selection from MiBioGen, publicly downloadable, no
-           credentials. Parameters were RECOVERED from the committed result
-           tables rather than assumed; see validate_instruments() and
-           docs/CORRECTIONS.md C12.
+  STAGE 1  EXPOSURE. Instrument selection from MiBioGen, publicly
+           downloadable, no credentials. Parameters were RECOVERED from the
+           committed result tables rather than assumed; see
+           validate_instruments() and docs/CORRECTIONS.md C12.
 
-  STAGE 2  OUTCOME, implemented but NOT yet validated end to end.
-           Harmonisation and the estimators are written to the documented
-           method. They cannot be validated here because the outcome data
-           requires either an OpenGWAS JWT or a direct FinnGen / GWAS Catalog
-           download that has not been performed. Do not treat Stage 2 output
-           as reproducing the committed tables until that check is run.
+  STAGE 2  OUTCOME. NOT in this module. An earlier version carried a `run`
+           subcommand that printed a notice and returned 2: no outcome
+           loading, no harmonisation, no taxon loop, no writer. It was
+           documented as "implemented", which was false, and it was removed
+           (docs/CORRECTIONS.md C13, C21).
+
+           The canonical Stage 2 implementation is src/wp1_stage2_validate.py.
+
+Estimators (ivw, mr_egger, weighted_median, cochran_q, bh) live here and are
+imported by the Stage 2 harness. Note that as written they carry four
+diagnosed defects relative to the code that produced the published tables:
+fixed-effect rather than random-effects IVW standard errors, MR-Egger without
+exposure orientation, a 500kb rather than 1Mb clumping window, and palindromic
+removal before rather than during harmonisation. See docs/CORRECTIONS.md
+C14-C17. A flag audit found these change 0/211 published Figure 6
+classifications, so they are code defects, not result errors.
 
 Usage
 -----
@@ -30,9 +39,9 @@ Usage
         --exposure /path/to/MBG.allHits.p1e4.txt \\
         --committed results/MR_results_colorectal.tsv
 
-    # Stage 2, once outcome summary statistics are available
-    python3 src/wp1_mr_pipeline.py run \\
-        --exposure ... --outcome ... --out results/MR_rebuilt.tsv
+    # Stage 2 lives elsewhere
+    python3 src/wp1_stage2_validate.py --exposure ... --outcome-hits ... \\
+        --fmt finngen --out results/MR_rebuilt_colorectal.tsv --faithful
 
 Exit codes
 ----------
@@ -214,15 +223,11 @@ def validate_instruments(exposure_path, committed_path):
 def main():
     ap = argparse.ArgumentParser()
     sub = ap.add_subparsers(dest="cmd", required=True)
+    # Stage 2 is NOT here. See src/wp1_stage2_validate.py (CORRECTIONS C21).
 
     v = sub.add_parser("validate-instruments")
     v.add_argument("--exposure", required=True)
     v.add_argument("--committed", default="results/MR_results_colorectal.tsv")
-
-    r = sub.add_parser("run")
-    r.add_argument("--exposure", required=True)
-    r.add_argument("--outcome", required=True)
-    r.add_argument("--out", default="results/MR_rebuilt.tsv")
 
     a = ap.parse_args()
 
@@ -237,13 +242,6 @@ def main():
             return 1
         print("\nStage 1 (exposure) validated against all committed instrument counts.")
         return 0
-
-    print("Stage 2 is implemented but NOT validated end to end. It requires "
-          "outcome summary statistics that have not been obtained. See the "
-          "module docstring and docs/CORRECTIONS.md C12 before using its "
-          "output for any claim.", file=sys.stderr)
-    return 2
-
 
 if __name__ == "__main__":
     sys.exit(main())
