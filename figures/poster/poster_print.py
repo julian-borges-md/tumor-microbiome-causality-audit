@@ -228,7 +228,7 @@ y -= text(COLX[0], y,
           "passed on zero-signal data. Only a confounder baseline and "
           "within-batch cross-validation discriminated. Batch-outcome "
           "confounding alone drove accuracy to 2.5 times chance on data "
-          "with no biology.",
+          "with no biology, as confounding rose to 0.95.",
           BODY_PT, wrap_chars=55) + 0.25
 y -= image("Figure1_audit_validation_crop.png", COLX[0] + 0.65, y, 11.7) + 0.14
 y -= text(COLX[0], y,
@@ -308,10 +308,11 @@ text(COLX[2] + 4.9, y,
 y -= 1.55
 y -= text(COLX[2], y,
           "Every FinnGen lead failed replication. The one FDR-significant hit, "
-          "phylum Cyanobacteria, was diagnosed as pleiotropy via the NOS2 "
-          "instrument rs2314810 and flipped direction on replication. A "
-          "Bifidobacterium signal collapsed on removal of rs182549 at LCT. "
-          "Zero taxa survive FDR in the large cohort.",
+          "phylum Cyanobacteria, reads as pleiotropy: Egger intercept p 0.05, "
+          "an instrument at NOS2 (a colorectal carcinogenesis gene, violating "
+          "the exclusion restriction), and a direction that flipped on "
+          "replication. A Bifidobacterium signal collapsed on removal of "
+          "rs182549 at LCT. Zero taxa survive FDR at scale.",
           BODY_PT, wrap_chars=55) + 0.25
 y -= image("Figure6_MR_colorectal_crop.png", COLX[2], y, 13.0) + 0.14
 y -= text(COLX[2], y,
@@ -332,50 +333,33 @@ y -= text(COLX[2], y,
           "lead requiring species-level instrumentation, not a finding.",
           BODY_PT, wrap_chars=55) + 0.40
 
-box_h = 3.15
+# Conclusion box: height computed from the wrapped text, not hardcoded.
+CONCLUSION = ("Decontamination is necessary and not sufficient. Cross-sectional "
+              "abundance cannot establish causation and, on the one organism whose "
+              "causal role is known, gets the direction backwards. Causal inference "
+              "here requires germline anchoring or temporal ordering, and both "
+              "require an audit first.")
+_lines = textwrap.wrap(CONCLUSION, 55)
+_lh = BODY_PT * 1.30 / 72.0
+box_h = 0.36 + 0.76 + len(_lines) * _lh + 0.26
 panel_bg(COLX[2], y, COLW, box_h, color="#EFE7E7")
-y -= 0.40
+y -= 0.36
 text(COLX[2], y, "CONCLUSION", 25, weight="bold", color=ACCENT)
-y -= 0.78
-text(COLX[2], y,
-     "Decontamination is necessary and not sufficient. Cross-sectional abundance "
-     "cannot establish causation and, on the one organism whose causal role is "
-     "known, gets the direction backwards. Causal inference here requires "
-     "germline anchoring or temporal ordering, and both require an audit first.",
-     BODY_PT, wrap_chars=55)
-
-# ----------------------------------------------------------------- footer
-rule(MARGIN, MARGIN + 1.62, W - 2 * MARGIN, lw=2.5)
-text(MARGIN, MARGIN + 1.42,
-     "Methods  Two synthetic cohorts, six cancer types, three batches, 150 taxa, "
-     "60 samples per type; one with genuine signal, one without, batch confounded "
-     "with outcome at 0.75. Audit: T1 no-information rate, T2 label permutation, "
-     "T3 confounder baseline, T5a within-batch CV.",
-     FOOT_PT, color=MUTED)
-text(MARGIN, MARGIN + 0.94,
-     "Data  The Cancer Microbiome Atlas, DOI 10.7924/r4bk1j35s, 611 samples, "
-     "14,492 taxa  |  MiBioGen, 211 taxa  |  FinnGen R12  |  "
-     "Fernandez-Rozadilla 2023, GCST90129505",
-     FOOT_PT, color=MUTED)
-text(MARGIN, MARGIN + 0.46,
-     "Code  Versioned pipeline, ten-seed determinism, input checksums, "
-     "assertion-checked outputs, re-derived by CI on every push.  " + 
-     "github.com/julian-borges-md/tumor-microbiome-causality-audit",
-     FOOT_PT, color=MUTED)
-text(W - MARGIN - 2.55, MARGIN + 0.94, "BU Health Data Science & AI Showcase   |   "
-     "15 September 2026", FOOT_PT, color=MUTED, ha="right")
-text(W - MARGIN - 2.55, MARGIN + 0.46, "v1.0  |  44 x 44 in  |  RO-2026-008",
-     FOOT_PT, color=ACCENT, ha="right")
-
+y -= 0.76
+text(COLX[2], y, CONCLUSION, BODY_PT, wrap_chars=55)
+y -= len(_lines) * _lh + 0.42
 
 # QR_BLOCK_V1
-_qr_size = 1.45
+# Anchored to the running column cursor, and shrunk if the space left above the
+# footer is tight, so it can never collide with the conclusion box.
+_qr_top = y - 0.18
+_avail = _qr_top - (MARGIN + 1.78)
+_qr_size = min(1.45, max(0.95, _avail))
 _qr_x = COLX[2] + COLW - _qr_size
-_qr_y = MARGIN + 1.95
-_qax = fig.add_axes([_qr_x / W, _qr_y / H, _qr_size / W, _qr_size / H])
+_qax = fig.add_axes([_qr_x / W, (_qr_top - _qr_size) / H, _qr_size / W, _qr_size / H])
 _qax.imshow(mpimg.imread(_asset("repo_qr.png")))
 _qax.axis("off")
-text(COLX[2], _qr_y + _qr_size - 0.10,
+text(COLX[2], _qr_top - 0.04,
      "Scan for the repository:\ncode, results, figures,\nand the corrections log.", 26,
      color=MUTED, leading=1.24)
 
