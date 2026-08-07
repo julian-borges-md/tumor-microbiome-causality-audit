@@ -17,11 +17,14 @@ nobody controls for consistently:
 
 This script measures both, on real TCMA data.
 """
+import os
 import numpy as np
 import pandas as pd
 from scipy import stats
 
-BASE = "/home/claude/tcma"
+# TCMA download location. Override with the TCMA_DIR environment
+# variable; defaults to ./tcma relative to the working directory.
+BASE = os.environ.get("TCMA_DIR", os.path.abspath("tcma"))
 
 
 def load():

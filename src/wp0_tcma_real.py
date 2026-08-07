@@ -12,6 +12,7 @@ zero-signal synthetic data failed?
   T3  beats batch-only (sequencing center) baseline
   T5a survives within-batch cross-validation
 """
+import os
 import numpy as np
 import pandas as pd
 from scipy import stats
@@ -19,7 +20,9 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import StratifiedKFold, cross_val_score
 from sklearn.preprocessing import OneHotEncoder
 
-BASE = "/home/claude/tcma"
+# TCMA download location. Override with the TCMA_DIR environment
+# variable; defaults to ./tcma relative to the working directory.
+BASE = os.environ.get("TCMA_DIR", os.path.abspath("tcma"))
 N_TREES = 150
 
 

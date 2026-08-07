@@ -81,3 +81,20 @@ Figures 1 to 6 remain without committed generation code.
 
 New gap: the FinnGen colorectal MR arm is reconstructed from rounded
 confidence intervals, not re-derived. See CORRECTIONS.md C7.
+
+
+---
+
+# Appended 2026-08-07 | Figure generation modules
+
+| Claim | Command | Expected |
+|---|---|---|
+| Figures 1, 2, 3, 6 regenerate from committed results | `python3 figures/make_figures.py --dpi 600` | asserted, exit 0 |
+| Figure 4 regenerates from TCMA | `TCMA_DIR=... python3 figures/make_figures_real.py --dpi 600` | asserted, exit 0 |
+| Zero-signal accuracy 0.169 to 0.409 across the sweep | same | asserted in make_figures.py |
+| T1/T2 pass 10/10 in both cohorts; T3/T5a 10/10 and 0/10 | same | asserted in make_figures.py |
+| H. pylori paired difference -0.994 | make_figures_real.py | asserted |
+
+Gap 6 ("Figures not generated. No figure code exists yet") is now closed for
+Figures 1, 2, 3, 4, 6 and 7. Figure 5 (taxonomic nesting) remains outstanding
+and depends on canonicalising nest_sweep.py.

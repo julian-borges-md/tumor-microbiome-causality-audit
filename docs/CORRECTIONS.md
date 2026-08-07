@@ -96,3 +96,57 @@ requires re-running that MR with full-precision output, which needs an
 OpenGWAS JWT. One taxon, phylum Cyanobacteria, fails reconstruction QC at
 the p-value tail and is excluded; it was already diagnosed as a pleiotropic
 artifact and its direction flipped on replication.
+
+
+---
+
+# Appended 2026-08-07 | Figure regeneration audit
+
+## C8. The 2.5x confounding ratio was attached to the wrong confounding level
+
+README.md reported "2.5x chance at confounding strength 0.75". The sweep was
+never run at 0.75. CANONICAL_RESULTS.md is correct: zero-signal accuracy rises
+from 0.169 at 0.333 confounding to 0.409 at 0.95, against a no-information
+rate of 0.167.
+
+| Confounding | Zero-signal accuracy | Ratio to chance |
+|---|---|---|
+| 0.333 | 0.169 | 1.02x |
+| 0.500 | 0.199 | 1.19x |
+| 0.650 | 0.263 | 1.58x |
+| 0.800 | 0.323 | 1.94x |
+| 0.950 | 0.409 | **2.46x** |
+
+Corrected claim: batch-outcome confounding alone drives accuracy to 2.5 times
+chance on zero-signal data AT 0.95 CONFOUNDING, and to 1.9 times chance at
+0.8. Figure 2 was always correct; only the README prose was wrong.
+
+## C9. Within-tissue AUCs shift across scikit-learn versions
+
+Figure 4 panel a was regenerated from the committed pipeline on scikit-learn
+1.9.0. The cross-validated ROC AUCs move slightly from the values in the
+original figure, produced on an earlier version.
+
+| Cancer | Original figure | Regenerated | Samples |
+|---|---|---|---|
+| COAD | 0.52 | 0.502 | 125 v 21 |
+| ESCA | 0.55 | 0.576 | 62 v 22 |
+| STAD | 0.67 | 0.663 | 128 v 39 |
+| HNSC | 0.68 | 0.693 | 157 v 22 |
+
+Sample counts are identical. These AUCs were never entered into
+CANONICAL_RESULTS.md and no claim depends on their second decimal. The claim
+they support, weak within-tissue discrimination in all four evaluable cancers,
+holds under both versions: every value lies between 0.50 and 0.70.
+
+Figure 4 panel b re-derives exactly: paired H. pylori difference -0.9942
+against the canonical -0.994, p = 4.46e-04, 39 matched pairs.
+
+## C10. Committed source hardcoded the original container's path
+
+Five scripts (wp0_tcma, wp0_tcma_real, wp0_paired, wp0_nesting,
+wp0_tumor_vs_normal) contained `BASE = "/home/claude/tcma"`, an absolute path
+that exists only in the container where they were written. They could not run
+anywhere else. BASE now reads the TCMA_DIR environment variable and defaults
+to ./tcma. Full real-data verification passes on a clean machine after a fresh
+download: all checksums match and wp0_tcma.py reports VERIFICATION PASSED.

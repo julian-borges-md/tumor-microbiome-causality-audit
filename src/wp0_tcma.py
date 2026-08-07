@@ -8,6 +8,7 @@ against the recorded value. Any drift fails loudly rather than silently.
 Data: The Cancer Microbiome Atlas, DOI 10.7924/r4bk1j35s
       SHA256 of WGS.zip: ec038a07b3b910caa31df07a8f96453f9f6d1a19503504cc43dbc0a76753a333
 """
+import os
 import sys
 
 import numpy as np
@@ -17,7 +18,9 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import StratifiedKFold, cross_val_score
 from sklearn.preprocessing import OneHotEncoder
 
-BASE = "/home/claude/tcma"
+# TCMA download location. Override with the TCMA_DIR environment
+# variable; defaults to ./tcma relative to the working directory.
+BASE = os.environ.get("TCMA_DIR", os.path.abspath("tcma"))
 TREES = 150
 TOL = 0.02          # absolute tolerance on accuracies
 RPT = {             # values reported during the session

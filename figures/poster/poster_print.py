@@ -227,7 +227,7 @@ y -= text(COLX[0], y,
           "Comparison against a no-information rate and label permutation both "
           "passed on zero-signal data. Only a confounder baseline and "
           "within-batch cross-validation discriminated. Batch-outcome "
-          "confounding alone manufactured accuracy 2.5 times chance from data "
+          "confounding alone drove accuracy to 2.5 times chance on data "
           "with no biology.",
           BODY_PT, wrap_chars=55) + 0.25
 y -= image("Figure1_audit_validation_crop.png", COLX[0] + 0.65, y, 11.7) + 0.14

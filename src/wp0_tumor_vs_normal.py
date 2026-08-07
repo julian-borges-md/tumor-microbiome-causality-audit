@@ -14,13 +14,16 @@ Tissue of origin is held constant, so anatomy cannot explain a difference.
 Reports per cancer type: audit-style classification (tumor vs normal) plus
 per-taxon differential abundance with BH-FDR control.
 """
+import os
 import numpy as np
 import pandas as pd
 from scipy import stats
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import StratifiedKFold, cross_val_score
 
-BASE = "/home/claude/tcma"
+# TCMA download location. Override with the TCMA_DIR environment
+# variable; defaults to ./tcma relative to the working directory.
+BASE = os.environ.get("TCMA_DIR", os.path.abspath("tcma"))
 N_TREES = 300
 
 

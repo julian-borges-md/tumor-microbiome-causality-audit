@@ -33,7 +33,7 @@ This is a direct methodological successor to [`breast-cancer-ai-misclassificatio
 | # | Finding | Value |
 |---|---|---|
 | F1 | Standard significance tests pass on zero-signal data | **10 of 10 seeds.** Only a confounder baseline (T3) and within-batch cross-validation (T5a) discriminate |
-| F2 | Batch-outcome confounding alone manufactures accuracy from nothing | **2.5x chance** at confounding strength 0.75 |
+| F2 | Batch-outcome confounding alone manufactures accuracy from nothing | **2.46x chance** at 0.95 confounding (accuracy 0.409 vs 0.167 no-information rate); 1.94x at 0.8 |
 | F3 | *H. pylori*, the accepted cause of gastric adenocarcinoma, is **depleted** at the tumor site | **~8-fold**, 39 patient-matched pairs, difference &minus;0.99 log units, p = 4.5e&minus;4 |
 | F4 | Reported discovery counts depend on the taxonomic redundancy rule | Up to **5.7-fold** variation on identical data at identical FDR |
 | F5 | Detection floor | **~0.8 log units** at n = 360. A null below this is uninterpretable |
@@ -104,6 +104,8 @@ The WP0 simulation and real-data targets require the TCMA download described in 
 ## Repository Contents
 
 ```
+figures/make_figures.py       regenerates Figures 1, 2, 3, 6 from results/
+figures/make_figures_real.py  regenerates Figure 4 from TCMA (needs TCMA_DIR)
 src/                       analysis modules
   wp0_core.py              ground-truth simulator, signal and zero-signal cohorts
   wp0_confound_sweep.py    accuracy against batch-outcome confounding strength
@@ -136,7 +138,7 @@ This repository documents its own defects rather than omitting them.
 
 | ID | Limitation |
 |---|---|
-| L1 | Figures 1 through 6 have no committed generation code. They were produced interactively. Reproducible as claims, not as artifacts |
+| L1 | **Largely closed.** Figures 1, 2, 3, 4, 6 and 7 now regenerate from committed data via `figures/make_figures.py` and `figures/make_figures_real.py`. Figure 5 (taxonomic nesting) still has no generation code and depends on canonicalising `nest_sweep.py` |
 | L2 | The Mendelian randomization pipeline is not committed. Result tables and plots only. Scheduled, not done |
 | L3 | The FinnGen colorectal arm is **reconstructed** from rounded confidence intervals, validated against stored p-values, not re-derived from source. Definitive fix requires re-running with full-precision output |
 | L4 | Permutation count is 25, not 1000, chosen for runtime |
