@@ -4,3 +4,22 @@ ec038a07b3b910caa31df07a8f96453f9f6d1a19503504cc43dbc0a76753a333  WGS.zip
 4289f72a42a241b8701d4b55e48d4fd560f945baa268b44bc9a68ea6a1f16c41  wgs/sample/bacteria.unambiguous.decontam.tissue.sample.rpm.txt
 418d7a0582282b863037a9a09e38ef0e572ad78743ebc6fcf66fe53e1aa800c4  meta/metadata.TCMA.sample.txt
 635eb14f362513153e9fbc4317afe018fe72229eaad69d32373405050dd83807  meta/taxonomy.txt
+
+
+# ---------------------------------------------------------------------------
+# RLO_MR_OUTCOME-STAGE2-VALIDATION_v1.0 | outcome summary statistics
+# Retrieved 2026-08-07 on escapepod-2.local. Files are gitignored (outcome/).
+# Format: sha256  bytes  retrieved_utc  path  source_url
+# ---------------------------------------------------------------------------
+
+b42770f3470ec57cf5540b0e2d40f55f19f28865e04cdf6e501e30c499aafcac  814842443  2026-08-07T14:07:35Z  outcome/colorectal.gz  https://storage.googleapis.com/finngen-public-data-r12/summary_stats/release/finngen_R12_C3_COLORECTAL_EXALLC.gz
+000b34b567c0540d13ce859476cfddcd9bafafac82d7eebc48a1bd3c74d8affc  640903823  2026-08-07T14:26:35Z  outcome/colorectal_100k.gz  http://ftp.ebi.ac.uk/pub/databases/gwas/summary_statistics/GCST90129001-GCST90130000/GCST90129505/harmonised/GCST90129505.h.tsv.gz
+e12eb6a465960bf7d61d0ca7e76729942b43077cfc17cc0708cad31d1df398ee  810871731  2026-08-07T14:27:55Z  outcome/pancreatic.gz  https://storage.googleapis.com/finngen-public-data-r12/summary_stats/release/finngen_R12_C3_PANCREAS_EXALLC.gz
+37001a83d060596fe0b97b63d6a397f01f43a29add2925d406916b7a50b5883e  18329457  2026-08-07  data/raw/MBG.allHits.p1e4.txt  https://molgenis26.gcc.rug.nl/downloads/MiBioGen/MBG.allHits.p1e4.txt
+
+# FinnGen phenocodes confirmed against the live release manifest
+# finngen_R12_manifest.tsv, not assumed:
+#   C3_COLORECTAL_EXALLC   11790 cases / 378749 controls
+#   C3_PANCREAS_EXALLC      3139 cases / 378749 controls
+# The 404 recorded in RLO item A1 was caused by the phenocode lacking the
+# _EXALLC suffix and by the file residing under summary_stats/release/.
