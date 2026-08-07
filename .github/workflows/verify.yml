@@ -1,0 +1,24 @@
+name: verify
+
+# Re-derives every asserted number in the manuscript from the committed result
+# tables. The module exits non-zero on any drift, so a red badge means the
+# repository no longer agrees with the paper.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  reproduce:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Re-derive asserted values
+        run: python src/wp1_cross_consistency.py --datadir results --outdir /tmp --figdir /tmp
