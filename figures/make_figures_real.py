@@ -3,8 +3,8 @@
 RO-2026-008 | Real-data figure regeneration
 make_figures_real-1.0.0
 
-Rebuilds Figure 4 from The Cancer Microbiome Atlas, closing limitation L1 for
-the poster's primary panel. Requires the TCMA download described in
+Rebuilds Figures 4 and 5 from The Cancer Microbiome Atlas, closing the last
+of limitation L1. Requires the TCMA download described in
 docs/RUNBOOK.md.
 
     export TCMA_DIR=/path/to/tcma
@@ -35,6 +35,7 @@ from scipy import stats
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "src"))
 import wp0_tumor_vs_normal as tvn          # noqa: E402
 import wp0_paired as pw                    # noqa: E402
+import wp0_nesting_sweep as nsw            # noqa: E402
 
 BLUE, ORANGE, GREEN, GREY = "#0072B2", "#D55E00", "#009E73", "#999999"
 PROJECTS = ["COAD", "ESCA", "STAD", "HNSC"]
@@ -116,6 +117,61 @@ def panel_b(ax, X, meta):
     return diff, p, T.shape[0]
 
 
+RULES = ["reported", "r>0.99", "r>0.95", "r>0.90", "r>0.80", "ancestor"]
+RULE_LABELS = ["reported\n(no collapse)", "r>0.99", "r>0.95", "r>0.90",
+               "r>0.80", "ancestor\nrule"]
+
+
+def figure5(out, dpi):
+    """Discovery counts as a function of the taxonomic redundancy rule."""
+    import wp0_nesting as nst
+    X, meta = nst.load()
+    tax = nst.tax_table()
+
+    series = {}
+    for label, proj, paired, disp in [("STAD paired", "STAD", True, "STAD (gastric)"),
+                                      ("HNSC unpaired", "HNSC", False, "HNSC (head & neck)")]:
+        hids, M, allids = nsw.sig_set(X, meta, proj, paired)
+        Mh = M[:, [allids.index(h) for h in hids]]
+        vals = [len(hids)]
+        for t in nsw.R_THRESHOLDS:
+            g, _ = nst.redundancy_graph(hids, tax, Mh, rthresh=t)
+            vals.append(len(g))
+        vals.append(len(nsw.ancestor_clades(hids, tax)))
+        series[disp] = vals
+        for k, v in zip(RULES, vals):
+            exp = nsw.EXPECTED_DISCOVERY[label][k]
+            if v != exp:
+                DRIFT.append(f"DRIFT F5 {label} {k}: got {v}, expected {exp}")
+
+    fig, ax = plt.subplots(figsize=(6.4, 5.0))
+    fig.suptitle("Figure 5  Discovery counts depend on the redundancy rule",
+                 fontsize=11, x=0.02, ha="left", y=0.985)
+    x = range(len(RULES))
+    for (name, vals), c, mk in zip(series.items(), [ORANGE, BLUE], ["s", "o"]):
+        ax.plot(x, vals, marker=mk, color=c, lw=2.0, ms=7, label=name)
+        ax.text(0.06, vals[0], str(vals[0]), fontsize=8.5, color=c, va="center")
+        ax.text(len(RULES) - 1.06, vals[-1], str(vals[-1]), fontsize=8.5,
+                color=c, va="center", ha="right")
+
+    hn = series["HNSC (head & neck)"]
+    fold = hn[0] / max(hn[-1], 1)
+    ax.annotate(f"{fold:.1f}-fold\nsame data", xy=(len(RULES) - 1, hn[-1]),
+                xytext=(3.05, hn[0] * 0.62), fontsize=9, color=ORANGE,
+                arrowprops=dict(arrowstyle="->", color=ORANGE, lw=1.2))
+
+    ax.set_xticks(list(x))
+    ax.set_xticklabels(RULE_LABELS, fontsize=8, rotation=30, ha="right")
+    ax.set_ylabel("number of significant findings")
+    ax.set_ylim(0, max(hn) * 1.12)
+    ax.legend(frameon=False, fontsize=8.5, loc="upper right")
+    style(ax)
+    fig.tight_layout(rect=[0, 0, 1, 0.955])
+    fig.savefig(os.path.join(out, "Figure5_nesting.png"), dpi=dpi)
+    plt.close(fig)
+    return series
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dpi", type=int, default=600)
@@ -140,6 +196,10 @@ def main():
     print("AUC: " + "  ".join(f"{p_}={v:.3f} (n={t}v{n})"
                               for p_, v, (t, n) in zip(PROJECTS, aucs, ns)))
     print(f"H. pylori paired diff {diff:+.4f}, p = {p:.2e}, {npairs} pairs")
+
+    series = figure5(a.outdir, a.dpi)
+    for name, vals in series.items():
+        print(f"Figure 5 {name}: " + " -> ".join(str(v) for v in vals))
     if DRIFT:
         print("\n".join(DRIFT), file=sys.stderr)
         return 1

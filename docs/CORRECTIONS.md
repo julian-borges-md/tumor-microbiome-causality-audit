@@ -150,3 +150,16 @@ that exists only in the container where they were written. They could not run
 anywhere else. BASE now reads the TCMA_DIR environment variable and defaults
 to ./tcma. Full real-data verification passes on a clean machine after a fresh
 download: all checksums match and wp0_tcma.py reports VERIFICATION PASSED.
+
+
+## C11. nest_sweep.py was not runnable as committed
+
+The exploratory nesting sweep loaded its dependencies with
+`exec(open('wp0_nesting.py').read().split('if __name__')[0])`, which required
+being run from inside src/ and asserted nothing. Superseded by
+wp0_nesting_sweep.py, which imports properly, emits
+results/nesting_sweep.json, and asserts every value in
+docs/findings/WP0_NESTING_FINDINGS.md. All values re-derive exactly:
+STAD 8/3/3/2/2/2, HNSC 51/44/43/42/31/9, and the feature-space redundancy
+table for all four cohorts. nest_sweep.py is retained unchanged as the
+historical record.

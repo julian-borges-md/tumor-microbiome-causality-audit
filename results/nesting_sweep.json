@@ -1,0 +1,54 @@
+{
+  "module": "wp0_nesting_sweep-1.0.0",
+  "discovery": {
+    "STAD paired": {
+      "reported": 8,
+      "r>0.99": 3,
+      "r>0.95": 3,
+      "r>0.90": 2,
+      "r>0.80": 2,
+      "ancestor": 2,
+      "fold": 4.0
+    },
+    "HNSC unpaired": {
+      "reported": 51,
+      "r>0.99": 44,
+      "r>0.95": 43,
+      "r>0.90": 42,
+      "r>0.80": 31,
+      "ancestor": 9,
+      "fold": 5.67
+    }
+  },
+  "features": {
+    "COAD": {
+      "nominal": 500,
+      "r>0.99": 418,
+      "r>0.95": 388,
+      "r>0.90": 368,
+      "redundant_pct_at_090": 26
+    },
+    "STAD": {
+      "nominal": 452,
+      "r>0.99": 359,
+      "r>0.95": 329,
+      "r>0.90": 306,
+      "redundant_pct_at_090": 32
+    },
+    "HNSC": {
+      "nominal": 500,
+      "r>0.99": 402,
+      "r>0.95": 384,
+      "r>0.90": 366,
+      "redundant_pct_at_090": 27
+    },
+    "ESCA": {
+      "nominal": 431,
+      "r>0.99": 310,
+      "r>0.95": 244,
+      "r>0.90": 202,
+      "redundant_pct_at_090": 53
+    }
+  },
+  "drift": []
+}

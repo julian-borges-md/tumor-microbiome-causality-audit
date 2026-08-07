@@ -105,7 +105,8 @@ The WP0 simulation and real-data targets require the TCMA download described in 
 
 ```
 figures/make_figures.py       regenerates Figures 1, 2, 3, 6 from results/
-figures/make_figures_real.py  regenerates Figure 4 from TCMA (needs TCMA_DIR)
+figures/make_figures_real.py  regenerates Figures 4, 5 from TCMA (needs TCMA_DIR)
+  wp0_nesting_sweep.py     canonical taxonomic redundancy sweep
 src/                       analysis modules
   wp0_core.py              ground-truth simulator, signal and zero-signal cohorts
   wp0_confound_sweep.py    accuracy against batch-outcome confounding strength
@@ -138,7 +139,7 @@ This repository documents its own defects rather than omitting them.
 
 | ID | Limitation |
 |---|---|
-| L1 | **Largely closed.** Figures 1, 2, 3, 4, 6 and 7 now regenerate from committed data via `figures/make_figures.py` and `figures/make_figures_real.py`. Figure 5 (taxonomic nesting) still has no generation code and depends on canonicalising `nest_sweep.py` |
+| L1 | **Closed.** All seven figures regenerate from source. Figures 1, 2, 3, 6 via `figures/make_figures.py`; Figures 4, 5 via `figures/make_figures_real.py`; Figure 7 via `src/wp1_cross_consistency.py`. Every module is assertion-checked and exits non-zero on drift |
 | L2 | The Mendelian randomization pipeline is not committed. Result tables and plots only. Scheduled, not done |
 | L3 | The FinnGen colorectal arm is **reconstructed** from rounded confidence intervals, validated against stored p-values, not re-derived from source. Definitive fix requires re-running with full-precision output |
 | L4 | Permutation count is 25, not 1000, chosen for runtime |

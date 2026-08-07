@@ -95,6 +95,15 @@ confidence intervals, not re-derived. See CORRECTIONS.md C7.
 | T1/T2 pass 10/10 in both cohorts; T3/T5a 10/10 and 0/10 | same | asserted in make_figures.py |
 | H. pylori paired difference -0.994 | make_figures_real.py | asserted |
 
-Gap 6 ("Figures not generated. No figure code exists yet") is now closed for
-Figures 1, 2, 3, 4, 6 and 7. Figure 5 (taxonomic nesting) remains outstanding
-and depends on canonicalising nest_sweep.py.
+Gap 6 ("Figures not generated. No figure code exists yet") is CLOSED. All
+seven figures regenerate from source.
+
+| Claim | Command | Expected |
+|---|---|---|
+| Figure 5 regenerates from TCMA | `TCMA_DIR=... python3 figures/make_figures_real.py` | asserted, exit 0 |
+| Discovery counts 8/3/3/2/2/2 (STAD) and 51/44/43/42/31/9 (HNSC) | `TCMA_DIR=... python3 src/wp0_nesting_sweep.py` | asserted, exit 0 |
+| Feature redundancy per cohort | same | asserted |
+
+Gap 1 ("nest_sweep.py not canonicalised") is CLOSED. wp0_nesting_sweep.py
+replaces the exec() import hack, emits results/nesting_sweep.json, and fails
+on drift. nest_sweep.py is retained only as the historical exploratory script.
