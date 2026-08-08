@@ -122,7 +122,7 @@ NUMBERS = [
 EVENT = ("BU Health Data Science & AI Showcase   |   15 September 2026   |   "
          "Hiebert Lounge")
 BYLINE = ("Julian Borges, MD, MS   |   Department of Computer Science, "
-          "Boston University")
+          "Boston University Metropolitan College")
 
 
 def build(path, px_w, px_h, dpi=150, show_claim=True, title_pt=34):

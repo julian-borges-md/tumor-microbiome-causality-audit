@@ -192,7 +192,7 @@ text(MARGIN, H - MARGIN - 3.05,
      "A calibration study using an established carcinogen as a natural control",
      44, color=MUTED, wrap_chars=88, style="italic")
 text(MARGIN, H - MARGIN - 4.35,
-     "Julian Borges, MD, MS   |   Department of Computer Science, Boston University",
+     "Julian Borges, MD, MS   |   Department of Computer Science, Boston University Metropolitan College",
      SUB_PT, weight="bold")
 text(MARGIN, H - MARGIN - 5.00,
      "ORCID 0009-0001-9929-3135   |   jyborges@bu.edu",
