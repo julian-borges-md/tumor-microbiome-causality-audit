@@ -733,3 +733,176 @@ Structure for each: what you're looking at, what to point at, what it means, and
 5. **Figures 3 and 5** only if they are still asking questions. Supporting, not central.
 
 The poster reads left to right because that builds the argument in writing. A person standing in front of you should meet the carcinogen first.
+
+---
+
+# ANNEX A — Technical methods, for expert questions
+
+Keep this separate from the poster. It exists for the visitor who asks how the
+synthetic data was built and why these choices and not others.
+
+Every value below is the committed `CONFIG` block in `src/wp0_core.py`. Anyone
+can check it against the repository while standing in front of you.
+
+---
+
+## A1. The generative model
+
+Poisson-lognormal, log1p transformed.
+
+| Step | Implementation |
+|---|---|
+| Latent abundance | `base ~ Normal(3.0, 1.0)` per sample per taxon, on the log scale |
+| Effects | added to `base`, additively on the log scale |
+| Observed counts | `X = log1p(Poisson(exp(base)))` |
+
+> "Poisson-lognormal, because it reproduces the two features of real microbiome
+> counts that matter here: overdispersion relative to Poisson, and a large mass
+> of near-zeros."
+
+---
+
+## A2. Structure
+
+| Parameter | Value | Rationale |
+|---|---|---|
+| Cancer types | 6 | matches the evaluable TCMA projects |
+| Samples per type | 60, total 360 | comparable to real per-cancer cohorts |
+| Taxa | 150 | runtime |
+| Signal taxa | 20, indices 0-19 | |
+| Batch taxa | 20, indices 20-39 | **disjoint from signal taxa** |
+| Batches | 3 | |
+| Biological effect | 1.20 log units | |
+| Batch effect | 1.20 log units | **deliberately identical** |
+| Classifier | random forest, 40 trees, min_samples_leaf 2 | |
+| Cross-validation | 3-fold stratified, shuffle, random_state 0 | |
+| Permutations | 25 | runtime; see A6 |
+
+Two of these are the design rather than arbitrary numbers, and both are worth
+volunteering before anyone asks.
+
+> "The signal taxa and the batch taxa do not overlap. The confounder operates
+> through entirely different features than the biology. If they shared
+> features, the demonstration would be rigged."
+
+> "The two effect sizes are equal. Batch is exactly as strong as biology, not
+> stronger. If I had made the batch effect dominant, of course it would win."
+
+---
+
+## A3. The confounding mechanism
+
+```
+home  = y // 2          # cancers 0,1 -> batch 0; 2,3 -> batch 1; 4,5 -> batch 2
+batch = home with probability `confound`, else a uniformly random other batch
+```
+
+Offer this unprompted. A sharp reviewer will derive it, and it strengthens the
+result rather than weakening it.
+
+> "Because batch maps to cancer *pairs*, a model using batch alone can narrow
+> six classes to two and then guess. Its ceiling is 50 percent accuracy, not
+> 100. Observed zero-signal accuracy at 0.95 confounding is 0.409 against a
+> 0.167 chance rate. That is 2.46 times chance, sitting just under the
+> theoretical ceiling, exactly where the design says it should. The number
+> isn't free-floating; it's bounded."
+
+---
+
+## A4. The only difference between the two cohorts
+
+```python
+if scenario == "A":
+    for k, t in enumerate(sig):
+        base[y == (k % n_cancers), t] += eff
+```
+
+> "Four lines. Everything else, including the batch effect, is shared. Same
+> random number stream, same seed, same code path. Cohort B isn't a different
+> simulation. It's cohort A with the biology loop skipped."
+
+---
+
+## A5. Design choices, with direction of bias
+
+For every choice, state which way it cuts. This is what separates a defensible
+answer from a defensive one.
+
+| Choice | Why | Which way it biases the result |
+|---|---|---|
+| Random forest, 40 trees | deliberately unremarkable; if the finding depended on the model it would be about the model | **Conservative.** A more flexible model finds the shortcut *more* easily |
+| 150 taxa, not 14,492 | runtime | **Conservative.** More features make the shortcut easier to find |
+| Equal effect sizes | fairness | neutral by construction |
+| Disjoint signal and batch taxa | cleanest separation | neutral |
+| Confounding 0.75 default | plausible for multi-centre data | reported as a sweep from 0.33 to 0.95, not a single point |
+| 3-fold cross-validation | runtime | conservative; more folds give tighter estimates |
+
+---
+
+## A6. Weaknesses. Say these before they are found.
+
+| # | Weakness | The honest answer |
+|---|---|---|
+| 1 | **The data is not compositional.** Real abundances are relative and sum to a constant, inducing negative correlations. Mine do not | A real gap. But compositionality makes discrimination *harder*, not easier, so it cannot rescue the tests. It does mean this is not a general-purpose microbiome simulator |
+| 2 | **25 permutations.** Minimum achievable p is 1/26, about 0.038 | Coarse. Documented as limitation L4. Production standard is 1000 |
+| 3 | **Thresholds 0.05, 0.10, 0.05 are arbitrary** | True. The separation is wide (T3 margin +0.247 for cohort A, −0.084 for B), so the conclusion is not threshold-sensitive, but I chose them |
+| 4 | **One classifier seed**, `random_state=0` | Reported dispersion understates total uncertainty. Limitation L5 |
+| 5 | **No structural zero-inflation** beyond what Poisson provides | Real data has more zeros |
+| 6 | **Effects additive on the log scale, independent across taxa** | Real taxa covary |
+
+---
+
+## A7. The objection that actually matters
+
+> **"You built in a confounder and then showed the tests miss it. That's circular."**
+
+Two-part answer. The second part is the one that wins.
+
+> "First, this is a positive control for a failure mode, not a claim about how
+> often it happens. I'm not asserting every study has this problem. I'm
+> asserting that if a study had it, these tests would not tell you.
+>
+> Second, and this is the part that answers the circularity: the tests fire
+> **correctly** on cohort A. They aren't simply broken. They're
+> *non-specific*. They say yes to real signal and yes to no signal. That's
+> worse than broken, because it's invisible.
+>
+> And the simulation isn't the argument on its own. It tells you what the
+> failure looks like. The H. pylori inversion in real decontaminated data tells
+> you it's there."
+
+---
+
+## A8. The five tests as implemented
+
+| Test | Rule | Origin |
+|---|---|---|
+| T1 | accuracy exceeds no-information rate by >0.05, binomial p<0.05 | **the field's** |
+| T2 | label permutation, 25 permutations | **the field's** |
+| T3 | accuracy exceeds a batch-only one-hot model by >0.10 | added here |
+| T5a | within-batch accuracy exceeds within-batch NIR by >0.05 | added here |
+
+> "T1 and T2 weren't chosen by me. I looked at what gets reported in this
+> literature and reproduced that. If I'd picked my own favourite tests and
+> shown they fail, nobody should care."
+
+---
+
+## A9. Reproducibility
+
+| Property | Implementation |
+|---|---|
+| Determinism | `rng = default_rng(1_000_000 + seed)`, seed passed explicitly, never global state |
+| Configuration | single versioned `CONFIG` dict, `wp0_core-1.0.0` |
+| Provenance | SHA256 on every input file |
+| Drift detection | expected values compiled into modules as assertions; non-zero exit on mismatch |
+| Continuous integration | re-derives every asserted number on each commit |
+
+One point of history worth telling, because it is the reason the module exists:
+
+> "The exploratory scripts used three different parameter configurations, taxa
+> at 500, 300, 250 and 150, permutations at 200, 40 and 25, trees at 200, 80,
+> 60 and 50, because they were tuned to fit execution windows. Values from
+> those runs are not mutually comparable. This module fixes one canonical
+> configuration and re-derives everything from it. That's written into the
+> module docstring, not hidden."
