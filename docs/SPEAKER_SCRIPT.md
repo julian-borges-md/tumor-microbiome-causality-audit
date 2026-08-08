@@ -551,3 +551,185 @@ statistics beyond an average.
 | Cyanobacteria | Egger intercept p = 0.05; NOS2 instrument rs2314810; direction flipped on replication |
 | Bifidobacterium / LCT | OR 1.21 → 1.08, p 0.02 → 0.27 on removing rs182549 |
 | Cohort | TCMA, 611 samples, 14,492 taxa, 5 TCGA projects, 3 centres |
+
+---
+
+# VERSION 5 — Figure-by-figure
+
+What each figure plots, in plain language, and what to say while pointing at it. Use this when someone asks about a specific panel, or when walking a technical visitor through the board slowly.
+
+Structure for each: what you're looking at, what to point at, what it means, and the question it invites.
+
+---
+
+## Figure 1 — Which tests catch fabricated signal
+
+*Column 1, under panel 2. Two panels side by side.*
+
+**What you're looking at.** Panel a is a bar chart. Four tests along the bottom. For each test, two bars: blue is the dataset with real signal in it, orange is the dataset with nothing in it. Bar height is how many times out of ten random attempts the test said "significant".
+
+**What to point at.** The first two pairs of bars.
+
+> "Look at T1 and T2. Both bars are at ten. That means these tests fired every single time on the real data, which is correct, and every single time on the empty data, which is the problem. They cannot tell the two apart. Now look at T3 and T5a: blue at ten, orange at zero. Those two work."
+
+**What it means.** The two tests this field reports most, comparison against a no-information rate and label permutation, have no ability to detect the absence of signal. The two I added do.
+
+**Panel b, if they want more.** Boxplots of the two working metrics. Blue clusters well above zero, orange sits at or below zero, almost no overlap. The dots are individual seeds.
+
+> "Panel b is why panel a looks so clean. The two discriminating metrics separate almost perfectly. This isn't a marginal call."
+
+**Invites:** "What are T3 and T5a?" A confounder baseline, and training on some labs while testing on a lab the model has never seen.
+
+---
+
+## Figure 2 — Confounding manufactures accuracy from noise
+
+*Column 1, bottom. Two panels.*
+
+**What you're looking at.** Left panel: horizontal axis is how strongly the processing lab is tangled with the cancer label, weak on the left to strong on the right. Vertical axis is model accuracy. Blue is real signal, orange is the empty dataset. The dashed grey line is chance.
+
+**What to point at.** The orange line climbing.
+
+> "The orange line is data with no biology in it whatsoever. As the lab and the diagnosis become more tangled, accuracy climbs from chance to two and a half times chance. Every bit of that is paperwork. There is nothing biological in that dataset to find."
+
+**What it means.** Confounding alone manufactures apparent predictive performance. If your validation only asks "did you beat chance", this passes.
+
+**Panel b.** Same horizontal axis, vertical axis is the within-batch metric. Orange sits flat in the grey band around zero at every confounding level.
+
+> "Panel b is the fix. Same data, same confounding, but now we test on a lab the model never saw. The orange line never leaves zero. The shortcut is unavailable, so it finds nothing, correctly."
+
+**Invites:** "Is 0.95 confounding realistic?" Honest answer: it is the extreme end of my sweep. At 0.8, very plausible in multi-centre data, it is still nearly twice chance.
+
+---
+
+## Figure 3 — Detection floor
+
+*Column 2, bottom left. Single panel.*
+
+**What you're looking at.** Horizontal axis is how big a real effect is. Vertical axis is the fraction of the time the method finds it. Blue is sensitivity, orange is false discoveries.
+
+**What to point at.** The steep part of the blue curve, then the green vertical line.
+
+> "Below about 0.4, real effects are missed three quarters of the time. The curve only reaches acceptable sensitivity around 0.8 log units, marked by the green line. Orange stays flat near zero throughout, so the method isn't trigger-happy. It's just blind below that threshold."
+
+**What it means.** A null result is only interpretable if you know what size effect you could have detected. Mine is 0.8 log units at this sample size.
+
+> "So when I report a null, the honest statement is 'no signal above 0.8 log units', not 'no signal'. Most nulls in this literature don't come with this number, which makes them hard to interpret."
+
+**Invites:** "Why is this not standard?" It requires a simulator and a ground truth, which most analyses never build.
+
+---
+
+## Figure 4 — The real-data panel
+
+*Column 2, top. Two panels. This is the most important figure on the board.*
+
+### Panel a, within-tissue signal is weak
+
+**What you're looking at.** Four cancers along the bottom. Bar height is how well a model distinguishes tumour from that patient's own adjacent normal tissue, measured as AUC. The dashed line at 0.5 is no signal at all.
+
+**What to point at.** The dashed line, and how close COAD and ESCA sit to it.
+
+> "Colon is at 0.50, which is coin-flip. Oesophagus 0.58. Stomach and head-and-neck are better at 0.66 and 0.69, but that is still weak. The numbers underneath are sample sizes, so you can see how modest these cohorts are."
+
+**What it means.** Once you compare tumour to normal within the same tissue, most of the apparent signal disappears. The strong pan-cancer signatures people report are largely tissue of origin, not tumour biology.
+
+### Panel b, the carcinogen runs backwards. The money panel.
+
+**What you're looking at.** Thirty-nine patients. Each grey line connects one patient's adjacent-normal sample on the left to their own tumour on the right. Blue dots are normal, orange dots are tumour. The thick black line is the mean.
+
+**What to point at.** The black line, then trace one or two grey lines with your finger.
+
+> "Every grey line is one patient. Their own healthy tissue on the left, their own tumour on the right. Almost all of them go down. H. pylori causes this cancer, and it is about eight-fold less abundant in the tumour it caused. Thirty-nine matched pairs, p of 4.5 times ten to the minus four."
+
+*[pause]*
+
+> "The mechanism isn't mysterious. It needs an acidic stomach lining. The cancer process destroys that lining. It starts the fire and the fire burns down the house it was living in."
+
+**What it means.** For the one organism whose causal role is independently established, cross-sectional abundance recovers the opposite of the truth.
+
+**Invites:** "Isn't this just known gastric pathology?" Yes, entirely, and that is exactly why it works as a control. Agree fast.
+
+---
+
+## Figure 5 — Discovery counts depend on the redundancy rule
+
+*Column 2, bottom right. Single panel, two lines.*
+
+**What you're looking at.** Bacteria are classified in a nested hierarchy: phylum contains class contains order contains family contains genus. If a signal exists at one level, it usually appears at several. The horizontal axis is how aggressively you collapse those duplicates, none on the left to fully collapsed on the right. The vertical axis is how many findings you end up reporting.
+
+**What to point at.** The blue line falling from 51 to 9.
+
+> "Same data. Same significance threshold. Same analysis. The only thing changing across this axis is how you decide whether a signal appearing at phylum and again at genus counts as one finding or two. Fifty-one findings at one end, nine at the other. A 5.7-fold range, and this choice is almost never stated in papers."
+
+**What it means.** Reported discovery counts in this literature are not comparable between studies unless the redundancy rule is disclosed.
+
+**Invites:** "Which rule is correct?" There isn't one. The point is that it must be stated, because it moves the headline number by nearly six times.
+
+---
+
+## Figure 6 — The causal screen
+
+*Column 3, top. A forest plot.*
+
+**What you're looking at.** Each row is one gut bacterium. The dot is the estimated effect on colorectal cancer risk; the horizontal line is the uncertainty around it. The vertical dashed line at 1.0 is "no effect". Left of the line means protective, right means risk-increasing. If a bacterium's line crosses 1.0, the evidence is compatible with no effect at all.
+
+**What to point at.** First the vertical line, then the colours.
+
+> "Anything whose bar crosses this dashed line at 1.0 is compatible with doing nothing. Orange means it survived correction for multiple testing. Blue means nominally suggestive but not surviving. Grey means it failed a quality check, either pleiotropy or heterogeneity."
+
+**The one orange row.**
+
+> "Only one thing survives correction, Cyanobacteria at the top. And I don't believe it, for three reasons. Its pleiotropy test sits right at p 0.05. One of its genetic instruments is at NOS2, a gene directly involved in colorectal carcinogenesis, which breaks the core assumption that the gene affects cancer only through the bacterium. And its direction flipped in the replication cohort."
+
+**What it means.** In the discovery cohort, the single hit is most parsimoniously read as an artefact rather than a causal finding.
+
+**Invites:** "So the whole screen is negative?" In the large cohort, yes, zero survive FDR. That is the honest headline, and Figure 7 is what survives underneath it.
+
+---
+
+## Figure 7 — The signal is real but diffuse
+
+*Column 3, bottom. Two panels.*
+
+### Panel a, the scatter
+
+**What you're looking at.** Every dot is one bacterium. Horizontal position is the effect estimated in the Finnish cohort; vertical position is the effect in the independent hundred-thousand-case cohort. The crosshairs mark zero on each axis.
+
+**What to point at.** The two diagonal quadrants.
+
+> "If a bacterium sits in the bottom-left or top-right, both cohorts agree on its direction: blue. If it sits in the other two, they disagree: orange. Two completely independent cohorts, different countries, different populations. There's no reason for them to agree unless something real is there."
+
+*[point at the circled dot]*
+
+> "That circled one is Alistipes, the only taxon that behaved consistently across all three tests I ran."
+
+### Panel b, the bars
+
+**What you're looking at.** Three bars showing the same quantity, the percentage of bacteria whose direction agreed, computed three different ways. The dashed line at 50 percent is what pure noise gives you.
+
+**What to point at.** All three bars at once.
+
+> "This is a robustness check, not three separate results. Fourteen bacteria had an odds ratio that rounded to exactly 1.00, so their direction was ambiguous. Depending on how you handle those ties you get 61.4, 61.2 or 57.1 percent. All three sit above the noise line. So the finding doesn't depend on a judgement call I made."
+
+**What it means.** There is a real causal signal from the gut microbiome on colorectal cancer. It is diffuse, spread across many organisms, and none is individually strong enough to find at current sample sizes.
+
+**Invites:** "61 percent is weak." Agreed, and I present it as weak. Binomial p of 0.001 over 210 taxa, robust to the tie rule. The claim is only that it is non-zero and diffuse, not that it is actionable.
+
+---
+
+## If someone asks about the QR code
+
+> "It goes to the repository. All the code, the committed results, every figure with the script that generates it, and an append-only corrections log with twelve entries. Continuous integration re-derives every number in the manuscript on each commit, so if a value ever stops matching, the badge goes red. Please do check."
+
+---
+
+## Order to walk someone through, if they give you the time
+
+1. **Figure 4b** first, out of order. It is the hook. Lead with the inversion.
+2. Back up to **Figure 1** for why the standard tests didn't catch this class of problem.
+3. **Figure 2** for the mechanism of the failure.
+4. **Figures 6 and 7** for what you do instead.
+5. **Figures 3 and 5** only if they are still asking questions. Supporting, not central.
+
+The poster reads left to right because that builds the argument in writing. A person standing in front of you should meet the carcinogen first.
